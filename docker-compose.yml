@@ -1,28 +1,31 @@
 # docker-compose.yml
 version: '2'
 services:
-    prometheus:
-        build: ./prometheus
-        volumes:
-          - prometheus_data:/prometheus
-        command:
-          - '-config.file=/etc/prometheus/prometheus.yml'
-        ports:
-            - '9090:9090'
-    node-exporter:
-        image: prom/node-exporter:0.12.0rc1
-        ports:
-            - '9100:9100'
-    grafana:
-        image: grafana/grafana:3.0.0-beta7
-        volumes:
-          - grafana_data:/var/lib/grafana
-        environment:
-            - GF_SECURITY_ADMIN_PASSWORD=pass
-        depends_on:
-            - prometheus
-        ports:
-            - "3000:3000"
+  prometheus:
+    build: ./prometheus
+    volumes:
+      - prometheus_data:/prometheus
+      - ./alertmanager/alert.rules:/etc/prometheus/alert.rules
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+    ports:
+        - '9090:9090'
+  node-exporter:
+    image: prom/node-exporter:0.12.0rc1
+    ports:
+        - '9100:9100'
+  grafana:
+    image: grafana/grafana:3.0.0-beta7
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+        - GF_SECURITY_ADMIN_PASSWORD=pass
+    depends_on:
+        - prometheus
+    ports:
+        - "3000:3000"
+  alertmanager:
+    build: ./alertmanager
 volumes:
   prometheus_data: {}
   grafana_data: {}
